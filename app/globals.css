@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+@theme {
+  --color-arena: #080b0f;
+  --color-arena-panel: #0f1419;
+  --color-arena-card: #1a2332;
+  --color-neon: #39ff14;
+  --color-neon-dim: #1aad00;
+  --color-cyan: #00d4ff;
+  --color-amber: #ffaa00;
+  --color-field-white: #f0f4f8;
+  --color-field-muted: #6b7a8d;
+  --color-grid-line: rgba(57, 255, 20, 0.08);
+
+  --font-display: "Black Han Sans", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+  --font-body: system-ui, sans-serif;
+}
+
+/* ── Base ── */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+  box-sizing: border-box;
+}
+
+* {
+  box-shadow: none !important;
+}
+
+/* ── Stadium grid background ── */
+body {
+  background-color: #080b0f;
+  background-image: linear-gradient(rgba(57, 255, 20, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 255, 20, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  color: #f0f4f8;
+  font-family: system-ui, sans-serif;
+  margin: 0;
+}
+
+/* ── Neon glow utilities ── */
+.neon-glow {
+  text-shadow: 0 0 20px rgba(57, 255, 20, 0.8), 0 0 40px rgba(57, 255, 20, 0.4);
+}
+
+.cyan-glow {
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.8), 0 0 40px rgba(0, 212, 255, 0.4);
+}
+
+.neon-border-glow {
+  border-color: #39ff14;
+  filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.5));
+}
+
+/* ── Scanlines for hero ── */
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  z-index: 1;
+}
+
+/* ── Ticker animation ── */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  animation: ticker 20s linear infinite;
+  white-space: nowrap;
+}
+
+/* ── Neon corner brackets for images ── */
+.neon-frame {
+  position: relative;
+}
+
+.neon-frame::before,
+.neon-frame::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #39ff14;
+  border-style: solid;
+  z-index: 10;
+}
+
+.neon-frame::before {
+  top: -3px;
+  left: -3px;
+  border-width: 3px 0 0 3px;
+}
+
+.neon-frame::after {
+  bottom: -3px;
+  right: -3px;
+  border-width: 0 3px 3px 0;
+}
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Service card hover ── */
+.service-card {
+  background: #1a2332;
+  border-left: 3px solid #39ff14;
+  transition: background 0.2s ease;
+}
+
+.service-card:hover {
+  background: #1f2b3e;
+}
+
+/* ── FAQ accordion ── */
+.faq-item {
+  border: 1px solid rgba(57, 255, 20, 0.08);
+  border-left: 3px solid transparent;
+  transition: border-left-color 0.2s ease;
+}
+
+.faq-item.open {
+  border-left-color: #39ff14;
+}
+
+/* ── Button base styles ── */
+.btn-neon {
+  background: #39ff14;
+  color: #080b0f;
+  font-family: "Black Han Sans", sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-neon:hover {
+  background: #5aff3a;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #39ff14;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  border: 1px solid #39ff14;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  background: rgba(57, 255, 20, 0.08);
+}
+
+/* ── Stat bar grid lines ── */
+.stat-bar-item + .stat-bar-item {
+  border-left: 1px solid rgba(57, 255, 20, 0.2);
+}

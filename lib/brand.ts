@@ -1,0 +1,21 @@
+export const brand = {
+  name: "Cell Phone Paradise",
+  owner: "Mr. Harry",
+  tagline: "Wilmington's Phone Champion Since Day One.",
+  phone: "(910) 772-5599",
+  tel: "tel:9107725599",
+  address: "1929 Oleander Dr #B, Wilmington, NC 28403",
+  googleReview: "https://g.page/r/cellphoneparadise/review",
+  colors: {
+    black: "#080b0f",
+    charcoal: "#0f1419",
+    steel: "#1a2332",
+    neon: "#39ff14",
+    neonDim: "#1aad00",
+    cyan: "#00d4ff",
+    amber: "#ffaa00",
+    white: "#f0f4f8",
+    muted: "#6b7a8d",
+    gridLine: "rgba(57,255,20,.08)",
+  },
+};
