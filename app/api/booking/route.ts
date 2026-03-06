@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
         device: device || null,
         service: service || null,
         notes: notes?.trim() || null,
+        language: language || "en",
         status: "new",
       });
 
