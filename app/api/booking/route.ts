@@ -16,8 +16,9 @@ export async function POST(req: NextRequest) {
     );
 
     const { error } = await supabase
-      .from("cellphoneparadise_bookings")
+      .from("leads")
       .insert({
+        client_slug: "cellphoneparadise",
         name: name.trim(),
         phone: phone.trim(),
         device: device || null,
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("Supabase error:", error);
-      return NextResponse.json({ error: "Failed to save booking" }, { status: 500 });
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
