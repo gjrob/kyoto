@@ -16,14 +16,13 @@ export async function POST(req: NextRequest) {
     );
 
     const { error } = await supabase
-      .from("leads")
+      .from("cellphoneparadise_bookings")
       .insert({
-        client_slug: "cellphoneparadise",
         name: name.trim(),
         phone: phone.trim(),
-        message: [device, service, notes?.trim()].filter(Boolean).join(' - ') || null,
-        lang: language || "en",
-        source: "booking-form",
+        device: device || null,
+        service: service || null,
+        notes: notes?.trim() || null,
         status: "new",
       });
 
@@ -31,6 +30,16 @@ export async function POST(req: NextRequest) {
       console.error("Supabase error:", error);
       return NextResponse.json({ error: error.message, details: error }, { status: 500 });
     }
+
+    await supabase.from("nurture_queue").insert({
+      client_slug: "cellphoneparadise",
+      lead_name: name.trim(),
+      phone: phone.trim(),
+      sequence_step: 1,
+      status: "pending",
+      channel: "sms",
+      scheduled_at: new Date().toISOString(),
+    });
 
     return NextResponse.json({ success: true });
   } catch (err) {
