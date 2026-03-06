@@ -108,6 +108,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchLeads()
+    fetchVenueStatus()
     const sub = supabase.channel('cpp-leads')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: LEADS_TABLE },
         (payload) => {
@@ -118,14 +119,25 @@ export default function Dashboard() {
     return () => { supabase.removeChannel(sub) }
   }, [])
 
+  async function fetchVenueStatus() {
+    const { data } = await supabase.from('venue_status').select('is_open,specials_text').eq('client_slug', CLIENT_SLUG).single()
+    if (data) {
+      setOverlayActive(data.is_open)
+      setOverlayMsg(data.specials_text || '')
+    }
+  }
+
   async function fetchLeads() {
     const { data } = await supabase.from(LEADS_TABLE).select('*').order('created_at', { ascending: false }).limit(200)
     if (data) {
       setLeads(data)
-      const now = new Date()
-      const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
-      const weekStr = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toISOString()
-      setStats({ today: data.filter(l => l.created_at > todayStr).length, week: data.filter(l => l.created_at > weekStr).length, total: data.length })
+      const today = new Date().toDateString()
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      setStats({
+        today: data.filter(l => new Date(l.created_at).toDateString() === today).length,
+        week: data.filter(l => new Date(l.created_at) >= weekAgo).length,
+        total: data.length,
+      })
     }
     setLoading(false)
   }
@@ -198,7 +210,14 @@ export default function Dashboard() {
               <input value={overlayMsg} onChange={e => setOverlayMsg(e.target.value)}
                 placeholder="e.g. Same-day screen repair available now..."
                 style={{ flex: 1, background: '#0f1419', border: '1px solid #1a2332', color: '#f0f4f8', padding: '10px 16px', fontFamily: 'monospace', fontSize: '13px', outline: 'none' }} />
-              <button onClick={() => setOverlayActive(!overlayActive)}
+              <button onClick={async () => {
+                const next = !overlayActive
+                setOverlayActive(next)
+                await supabase.from('venue_status').upsert(
+                  { client_slug: CLIENT_SLUG, is_open: next, specials_text: overlayMsg },
+                  { onConflict: 'client_slug' }
+                )
+              }}
                 style={{ background: overlayActive ? '#ff4444' : ACCENT, color: overlayActive ? '#fff' : ACCENT_TEXT, border: 'none', padding: '10px 28px', cursor: 'pointer', fontFamily: 'monospace', fontWeight: 700, fontSize: '12px', letterSpacing: '.1em' }}>
                 {overlayActive ? 'STOP' : 'GO LIVE'}
               </button>

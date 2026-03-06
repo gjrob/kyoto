@@ -15,14 +15,14 @@ export default function SpecialsBanner({ lang = 'en' }: { lang?: 'en' | 'es' }) 
   useEffect(() => {
     supabase
       .from('venue_status')
-      .select('specials_text, happy_hour_active, specials_text_es')
+      .select('specials_text, is_open')
       .eq('client_slug', 'cellphoneparadise')
       .single()
       .then(({ data }) => {
-        if (data?.happy_hour_active) {
+        if (data?.is_open && data.specials_text) {
           setBanner({
-            text_en: data.specials_text || "Today's Special",
-            text_es: data.specials_text_es || 'Especial de Hoy',
+            text_en: data.specials_text,
+            text_es: data.specials_text,
             active: true,
           })
         }
@@ -33,9 +33,9 @@ export default function SpecialsBanner({ lang = 'en' }: { lang?: 'en' | 'es' }) 
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'venue_status', filter: 'client_slug=eq.cellphoneparadise' },
         ({ new: next }: any) => {
-          setBanner(next.happy_hour_active ? {
-            text_en: next.specials_text || "Today's Special",
-            text_es: next.specials_text_es || 'Especial de Hoy',
+          setBanner(next.is_open && next.specials_text ? {
+            text_en: next.specials_text,
+            text_es: next.specials_text,
             active: true,
           } : null)
         }
