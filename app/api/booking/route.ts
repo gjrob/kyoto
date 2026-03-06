@@ -32,16 +32,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message, details: error }, { status: 500 });
     }
 
-    await supabase.from("nurture_queue").insert({
-      client_slug: "cellphoneparadise",
-      lead_name: name.trim(),
-      lead_phone: phone.trim(),
-      lead_email: null,
-      sequence_step: 1,
-      status: "pending",
-      channel: "sms",
-      scheduled_at: new Date().toISOString(),
-    });
+    // Non-fatal — don't let this kill the booking confirmation
+    try {
+      await supabase.from("nurture_queue").insert({
+        client_slug: "cellphoneparadise",
+        lead_name: name.trim(),
+        lead_phone: phone.trim(),
+        lead_email: null,
+        sequence_step: 1,
+        status: "pending",
+        channel: "sms",
+        scheduled_at: new Date().toISOString(),
+      });
+    } catch (nurtureErr) {
+      console.error("nurture_queue error (non-fatal):", nurtureErr);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
