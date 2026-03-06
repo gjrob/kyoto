@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
     await supabase.from("nurture_queue").insert({
       client_slug: "cellphoneparadise",
       lead_name: name.trim(),
-      phone: phone.trim(),
+      lead_phone: phone.trim(),
+      lead_email: null,
       sequence_step: 1,
       status: "pending",
       channel: "sms",
