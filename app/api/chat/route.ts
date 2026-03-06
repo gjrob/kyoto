@@ -29,11 +29,11 @@ Most repairs done same-day.
 To book: use the form on the website or call (910) 772-5599.
 If asked about exact prices, tell them to call for a quote — prices vary by device model.
 Keep answers brief, direct, and friendly.
-Respond in the same language the user writes in.`;
+Respond in the same language the user writes in. If they write in Spanish, respond entirely in Spanish.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { message } = await req.json();
+    const { message, lang = 'en' } = await req.json();
     if (!message?.trim()) {
       return NextResponse.json({ error: "Message required" }, { status: 400 });
     }

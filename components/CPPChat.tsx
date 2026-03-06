@@ -1,3 +1,4 @@
+// ChatBot component for Cell Phone Paradise
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useLang } from "./LangContext";

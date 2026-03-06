@@ -5,7 +5,7 @@ export const brand = {
   phone: "(910) 772-5599",
   tel: "tel:9107725599",
   address: "1929 Oleander Dr #B, Wilmington, NC 28403",
-  googleReview: "https://g.page/r/cellphoneparadise/review",
+  googleReview: "https://maps.google.com/?cid=9424400073540167915",
   colors: {
     black: "#080b0f",
     charcoal: "#0f1419",
