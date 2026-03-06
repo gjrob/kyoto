@@ -21,10 +21,9 @@ export async function POST(req: NextRequest) {
         client_slug: "cellphoneparadise",
         name: name.trim(),
         phone: phone.trim(),
-        device: device || null,
-        service: service || null,
-        notes: notes?.trim() || null,
-        language: language || "en",
+        message: [device, service, notes?.trim()].filter(Boolean).join(' - ') || null,
+        lang: language || "en",
+        source: "booking-form",
         status: "new",
       });
 
