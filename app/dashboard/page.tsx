@@ -9,7 +9,7 @@ const supabase = createClient(
 
 const LEADS_TABLE = 'cellphoneparadise_bookings'
 const CLIENT_SLUG = 'cellphoneparadise'
-const ACCENT = '#39ff14'
+const ACCENT = '#00ff88'
 const ACCENT_TEXT = '#000000'
 
 interface Lead {
