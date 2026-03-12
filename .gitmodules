@@ -1,0 +1,3 @@
+[submodule "billing/billing"]
+	path = billing/billing
+	url = git@github.com:gjrob/bluetubetv-billing.git
