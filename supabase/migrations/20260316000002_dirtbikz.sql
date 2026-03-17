@@ -1,0 +1,143 @@
+-- DIRTBIKZ: products, orders, cart_sessions tables
+-- Multi-tenant: client_slug = 'dirtbikz'
+
+-- ── products ──────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS products (
+  id                    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_slug           text NOT NULL DEFAULT 'dirtbikz',
+
+  -- Identity
+  name                  text NOT NULL,
+  category              text NOT NULL CHECK (category IN (
+    'dirt-bike', 'atv', 'side-by-side', 'go-cart', '4-wheeler', 'fold-cart', 'parts', 'other'
+  )),
+  brand                 text,
+  model                 text,
+  year                  integer,
+  description           text,
+  specs                 jsonb DEFAULT '{}',
+
+  -- Media
+  primary_image_url     text,
+  images                jsonb DEFAULT '[]',
+
+  -- Pricing
+  price_cents           integer NOT NULL,
+  original_price_cents  integer,
+
+  -- Location
+  location              text,   -- 'NC' | 'SC' | 'GA'
+
+  -- Status
+  in_stock              boolean NOT NULL DEFAULT true,
+  featured              boolean NOT NULL DEFAULT false,
+
+  -- Timestamps
+  created_at            timestamptz NOT NULL DEFAULT now(),
+  updated_at            timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION update_products_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN NEW.updated_at = now(); RETURN NEW; END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER products_updated_at
+  BEFORE UPDATE ON products
+  FOR EACH ROW EXECUTE FUNCTION update_products_updated_at();
+
+CREATE INDEX IF NOT EXISTS products_client_slug_idx ON products(client_slug);
+CREATE INDEX IF NOT EXISTS products_category_idx    ON products(category);
+CREATE INDEX IF NOT EXISTS products_in_stock_idx    ON products(in_stock);
+CREATE INDEX IF NOT EXISTS products_featured_idx    ON products(featured);
+CREATE INDEX IF NOT EXISTS products_created_at_idx  ON products(created_at DESC);
+
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+
+-- Public can browse in-stock products
+CREATE POLICY "public read dirtbikz products"
+  ON products FOR SELECT
+  USING (client_slug = 'dirtbikz' AND in_stock = true);
+
+-- Service role manages all (admin CRUD uses service key)
+CREATE POLICY "service role manages dirtbikz products"
+  ON products FOR ALL
+  USING (client_slug = 'dirtbikz');
+
+-- ── orders ────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS orders (
+  id                        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_slug               text NOT NULL DEFAULT 'dirtbikz',
+
+  -- Customer
+  customer_name             text NOT NULL,
+  customer_email            text NOT NULL,
+  customer_phone            text,
+
+  -- Line items: [{ product_id, name, price_cents, quantity }]
+  items                     jsonb NOT NULL DEFAULT '[]',
+  total_cents               integer NOT NULL,
+
+  -- Shipping
+  shipping_address          text,
+  shipping_city             text,
+  shipping_state            text,
+  shipping_zip              text,
+
+  -- Payment
+  stripe_payment_intent_id  text,
+  stripe_session_id         text,
+  payment_status            text NOT NULL DEFAULT 'pending'
+                             CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
+
+  -- Fulfillment
+  order_status              text NOT NULL DEFAULT 'new'
+                             CHECK (order_status IN ('new', 'confirmed', 'shipped', 'delivered', 'cancelled')),
+
+  -- Timestamps
+  created_at                timestamptz NOT NULL DEFAULT now(),
+  updated_at                timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TRIGGER orders_updated_at
+  BEFORE UPDATE ON orders
+  FOR EACH ROW EXECUTE FUNCTION update_products_updated_at();
+
+CREATE INDEX IF NOT EXISTS orders_client_slug_idx     ON orders(client_slug);
+CREATE INDEX IF NOT EXISTS orders_customer_email_idx  ON orders(customer_email);
+CREATE INDEX IF NOT EXISTS orders_payment_status_idx  ON orders(payment_status);
+CREATE INDEX IF NOT EXISTS orders_created_at_idx      ON orders(created_at DESC);
+
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can insert an order (guest checkout)
+CREATE POLICY "public insert dirtbikz orders"
+  ON orders FOR INSERT
+  WITH CHECK (client_slug = 'dirtbikz');
+
+-- Customers can read their own orders by email (via service-role API)
+-- Admin reads all via service role key
+-- ── cart_sessions ──────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS cart_sessions (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_slug       text NOT NULL DEFAULT 'dirtbikz',
+  session_id        text NOT NULL,
+  items             jsonb NOT NULL DEFAULT '[]',
+  created_at        timestamptz NOT NULL DEFAULT now(),
+  updated_at        timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT cart_sessions_unique UNIQUE(client_slug, session_id)
+);
+
+CREATE TRIGGER cart_sessions_updated_at
+  BEFORE UPDATE ON cart_sessions
+  FOR EACH ROW EXECUTE FUNCTION update_products_updated_at();
+
+CREATE INDEX IF NOT EXISTS cart_sessions_client_slug_idx  ON cart_sessions(client_slug);
+CREATE INDEX IF NOT EXISTS cart_sessions_session_id_idx   ON cart_sessions(session_id);
+CREATE INDEX IF NOT EXISTS cart_sessions_created_at_idx   ON cart_sessions(created_at DESC);
+
+ALTER TABLE cart_sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "public manage dirtbikz carts"
+  ON cart_sessions FOR ALL
+  USING (client_slug = 'dirtbikz');

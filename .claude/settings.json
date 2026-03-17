@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(done)",
+      "Bash(for client in lawnlads queens smt popcar)",
+      "Bash(do)",
+      "Bash(echo \"=== $client ===\")",
+      "Read(//Users/garlanjrobinson/Desktop/kyoto/clients/$client/app/**)",
+      "Bash(grep -rn '},, \"\"telephone\"\"' /Users/garlanjrobinson/Desktop/kyoto/clients/)",
+      "Bash(grep -rn '\"\"telephone\"\"' /Users/garlanjrobinson/Desktop/kyoto/clients/*/app/page.tsx)",
+      "Bash(python3 -c \":*)",
+      "Bash(bash create-and-push-clients.sh \"feat: audit all clients — dashboard stats, overlay Supabase, VenueStatus is_open, EN/ES nav, specials banner, PoweredByBTV\")",
+      "Bash(ls /Users/garlanjrobinson/Desktop/kyoto/clients/postcss*)",
+      "Bash(ls /Users/garlanjrobinson/Desktop/kyoto/clients/next*)",
+      "WebFetch(domain:cutthecrapparenting.com)",
+      "Bash(git add .)",
+      "Bash(git restore --staged \"components/\")",
+      "Bash(git restore --staged \".gitignore 2\" \"next.config 2.mjs\")",
+      "Bash(npm install:*)",
+      "WebFetch(domain:gilmorecraftandcoat.com)",
+      "WebFetch(domain:img1.wsimg.com)",
+      "WebFetch(domain:www.facebook.com)"
+    ]
+  }
+}
